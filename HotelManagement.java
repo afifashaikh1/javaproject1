@@ -1,138 +1,113 @@
 import java.util.Scanner;
+import java.util.Vector;
 
 class Customer {
+    int id;
     String name;
-    String contact;
+    String roomType;
+    int days;
 
-    public Customer(String name, String contact) {
+    Customer(int id, String name, String roomType, int days) {
+        this.id = id;
         this.name = name;
-        this.contact = contact;
+        this.roomType = roomType;
+        this.days = days;
     }
 
     @Override
     public String toString() {
-        return "Name: " + name + ", Contact: " + contact;
-    }
-}
-
-class Room {
-    int roomNumber;
-    Customer customer;
-
-    public Room(int roomNumber) {
-        this.roomNumber = roomNumber;
-        this.customer = null; // Empty room
-    }
-
-    public boolean isAvailable() {
-        return customer == null;
-    }
-
-    public void checkIn(Customer customer) {
-        this.customer = customer;
-    }
-
-    public void checkOut() {
-        this.customer = null;
-    }
-
-    @Override
-    public String toString() {
-        if (customer == null) {
-            return "Room " + roomNumber + " is available.";
-        } else {
-            return "Room " + roomNumber + " is occupied by " + customer.toString();
-        }
-    }
-}
-
-class Hotel {
-    Room[] rooms;
-
-    public Hotel(int numberOfRooms) {
-        rooms = new Room[numberOfRooms];
-        for (int i = 0; i < numberOfRooms; i++) {
-            rooms[i] = new Room(i + 1);
-        }
-    }
-
-    public void checkIn(int roomNumber, Customer customer) {
-        if (rooms[roomNumber - 1].isAvailable()) {
-            rooms[roomNumber - 1].checkIn(customer);
-            System.out.println("Customer checked in successfully to room " + roomNumber);
-        } else {
-            System.out.println("Room " + roomNumber + " is already occupied.");
-        }
-    }
-
-    public void checkOut(int roomNumber) {
-        if (!rooms[roomNumber - 1].isAvailable()) {
-            rooms[roomNumber - 1].checkOut();
-            System.out.println("Customer checked out successfully from room " + roomNumber);
-        } else {
-            System.out.println("Room " + roomNumber + " is already empty.");
-        }
-    }
-
-    public void displayRooms() {
-        for (Room room : rooms) {
-            System.out.println(room.toString());
-        }
+        return "ID: " + id + ", Name: " + name + ", Room Type: " + roomType + ", Days: " + days;
     }
 }
 
 public class HotelManagement {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Hotel hotel = new Hotel(100); // 100 rooms in the hotel
-        boolean running = true;
+        Scanner sc = new Scanner(System.in);
+        Vector<Customer> customers = new Vector<>();
+        int maxCapacity = 100;
 
-        while (running) {
-            System.out.println("\nHotel Management System");
-            System.out.println("1. Check In");
-            System.out.println("2. Check Out");
-            System.out.println("3. Display Rooms");
-            System.out.println("4. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
+        while (true) {
+            System.out.println("\n--- Hotel Management System ---");
+            System.out.println("1. Add Customer");
+            System.out.println("2. View All Customers");
+            System.out.println("3. Search Customer by ID");
+            System.out.println("4. Remove Customer");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = sc.nextInt();
 
             switch (choice) {
                 case 1:
-                    System.out.print("Enter room number (1-100): ");
-                    int roomNumber = scanner.nextInt();
-                    scanner.nextLine(); // Consume newline
-                    if (roomNumber < 1 || roomNumber > 100) {
-                        System.out.println("Invalid room number. Please choose between 1 and 100.");
-                        break;
+                    if (customers.size() < maxCapacity) {
+                        System.out.print("Enter Customer ID: ");
+                        int id = sc.nextInt();
+                        sc.nextLine(); // Consume newline
+                        System.out.print("Enter Customer Name: ");
+                        String name = sc.nextLine();
+                        System.out.print("Enter Room Type (Single/Double/Suite): ");
+                        String roomType = sc.nextLine();
+                        System.out.print("Enter Number of Days: ");
+                        int days = sc.nextInt();
+
+                        customers.add(new Customer(id, name, roomType, days));
+                        System.out.println("Customer added successfully!");
+                    } else {
+                        System.out.println("Hotel is at full capacity!");
                     }
-                    System.out.print("Enter customer name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Enter customer contact: ");
-                    String contact = scanner.nextLine();
-                    Customer customer = new Customer(name, contact);
-                    hotel.checkIn(roomNumber, customer);
                     break;
+
                 case 2:
-                    System.out.print("Enter room number (1-100) to check out: ");
-                    roomNumber = scanner.nextInt();
-                    if (roomNumber < 1 || roomNumber > 100) {
-                        System.out.println("Invalid room number. Please choose between 1 and 100.");
-                        break;
+                    if (customers.isEmpty()) {
+                        System.out.println("No customers found.");
+                    } else {
+                        System.out.println("\n--- Customer List ---");
+                        for (Customer customer : customers) {
+                            System.out.println(customer);
+                        }
                     }
-                    hotel.checkOut(roomNumber);
                     break;
+
                 case 3:
-                    hotel.displayRooms();
+                    System.out.print("Enter Customer ID to search: ");
+                    int searchId = sc.nextInt();
+                    boolean found = false;
+                    for (Customer customer : customers) {
+                        if (customer.id == searchId) {
+                            System.out.println("Customer Found: " + customer);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.out.println("Customer not found.");
+                    }
                     break;
+
                 case 4:
-                    running = false;
-                    System.out.println("Exiting Hotel Management System.");
+                    System.out.print("Enter Customer ID to remove: ");
+                    int removeId = sc.nextInt();
+                    boolean removed = false;
+                    for (Customer customer : customers) {
+                        if (customer.id == removeId) {
+                            customers.remove(customer);
+                            System.out.println("Customer removed successfully!");
+                            removed = true;
+                            break;
+                        }
+                    }
+                    if (!removed) {
+                        System.out.println("Customer not found.");
+                    }
                     break;
+
+                case 5:
+                    System.out.println("Exiting Hotel Management System. Goodbye!");
+                    sc.close();
+                    return;
+
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
         }
-
-        scanner.close();
     }
 }
